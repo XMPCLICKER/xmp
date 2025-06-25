@@ -27,6 +27,7 @@
     align-items: center;
     gap: 15px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
   }
 
   h1 {
@@ -34,6 +35,7 @@
     font-weight: 900;
     font-size: 2.8rem;
     text-shadow: 1px 1px 8px #000;
+    flex-basis: 100%;
   }
 
   button.control-btn {
@@ -66,12 +68,14 @@
     box-shadow: 0 0 25px rgba(255, 235, 59, 0.8);
     user-select: none;
   }
+
   #score {
     font-size: 32px;
     margin-top: 20px;
     color: #ffeb3b;
     text-shadow: 1px 1px 6px #000;
   }
+
   #progress-container {
     width: 80%;
     height: 25px;
@@ -81,12 +85,14 @@
     overflow: hidden;
     box-shadow: 0 0 12px #555;
   }
+
   #progress-bar {
     height: 100%;
     width: 0%;
     background: linear-gradient(to right, #ffc107, #ffeb3b);
     transition: width 0.3s;
   }
+
   #open-shop {
     margin-top: 20px;
     background: #fdd835;
@@ -99,10 +105,12 @@
     box-shadow: 0 0 15px #fdd835;
     transition: 0.3s;
   }
+
   #open-shop:hover {
     background: #fbc02d;
     box-shadow: 0 0 20px #fbc02d;
   }
+
   .shop {
     display: none;
     margin-top: 40px;
@@ -115,29 +123,34 @@
     margin-left: auto;
     margin-right: auto;
   }
+
   #bps-display {
     font-size: 22px;
     font-weight: 700;
     margin-bottom: 15px;
     text-shadow: 1px 1px 6px #000;
   }
+
   .shop-grid-container {
     display: flex;
     gap: 20px;
     justify-content: center;
   }
+
   .shop-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
     width: 45%;
   }
+
   .separator {
     width: 2px;
     background: #ffeb3b;
     border-radius: 2px;
     box-shadow: 0 0 10px #ffeb3b;
   }
+
   .upgrade {
     background: #222;
     padding: 15px;
@@ -148,13 +161,16 @@
     transition: transform 0.2s, background 0.3s;
     user-select: none;
   }
+
   .upgrade:hover {
     transform: scale(1.05);
     background: #333;
   }
+
   #plej-upgrade-container {
     margin-top: 30px;
   }
+
   #plej-upgrade {
     background: #222;
     padding: 20px;
@@ -166,9 +182,25 @@
     user-select: none;
     transition: transform 0.2s, background 0.3s;
   }
+
   #plej-upgrade:hover {
     transform: scale(1.07);
     background: #333;
+  }
+
+  footer {
+    margin-top: 60px;
+    color: #aaa;
+    font-size: 14px;
+  }
+
+  footer a {
+    color: #ffeb3b;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    text-decoration: underline;
   }
 </style>
 </head>
@@ -176,6 +208,7 @@
 
 <header>
   <h1>Klikačka</h1>
+  <button class="control-btn" id="xmp-lol-btn" title="Přejít na xmp.lol">xmp.lol</button>
   <button class="control-btn" id="reset-btn" title="Reset všech bodů a upgradů">Reset</button>
   <button class="control-btn" id="sound-toggle-btn" title="Zapnout/vypnout zvuky">Zvuky ON</button>
 </header>
@@ -192,28 +225,26 @@
 <div class="shop" id="shop">
   <div id="bps-display">Body za sekundu: 0</div>
   <div class="shop-grid-container">
-    <div class="shop-grid" id="click-upgrades">
-      <!-- Klik síla -->
-    </div>
+    <div class="shop-grid" id="click-upgrades"></div>
     <div class="separator"></div>
-    <div class="shop-grid" id="auto-upgrades">
-      <!-- Automatické body -->
-    </div>
+    <div class="shop-grid" id="auto-upgrades"></div>
   </div>
-  <div id="plej-upgrade-container">
-    <!-- Plej upgrade dole -->
-  </div>
+  <div id="plej-upgrade-container"></div>
 </div>
 
 <audio id="click-sound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+
+<footer>
+  <p>Hra vytvořena: <strong>Zekysek_ + ChatGPT</strong></p>
+  <p>Web: <a href="https://xmp.lol" target="_blank">xmp.lol</a> | Hosting: <strong>ElecDeemTV</strong></p>
+</footer>
 
 <script>
   let score = parseInt(localStorage.getItem('score')) || 0;
   let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
   let passiveIncome = parseInt(localStorage.getItem('passiveIncome')) || 0;
   let soundEnabled = (localStorage.getItem('soundEnabled') === null) ? true : (localStorage.getItem('soundEnabled') === 'true');
-
-  const goal = 1000000000;
+  const goal = 100000000;
 
   const scoreDisplay = document.getElementById('score');
   const xmp = document.getElementById('xmp');
@@ -227,37 +258,34 @@
   const clickSound = document.getElementById('click-sound');
   const resetBtn = document.getElementById('reset-btn');
   const soundToggleBtn = document.getElementById('sound-toggle-btn');
+  const xmpLolBtn = document.getElementById('xmp-lol-btn');
 
-  // Jména - vlevo (klik síla)
   const clickUpgrades = [
-    { name: 'Plej', cost: goal, bonusClick: 5000, bonusAuto: 0 },
+    { name: 'Plej', cost: 100000000, bonusClick: 5000, bonusAuto: 0 },
     { name: 'Dareos', cost: 100, bonusClick: 1, bonusAuto: 0 },
     { name: 'Zlý Kluk', cost: 500, bonusClick: 5, bonusAuto: 0 },
-    { name: 'Skelen', cost: 1000, bonusClick: 10, bonusAuto: 0 },
-    { name: 'Mavi', cost: 5000, bonusClick: 20, bonusAuto: 0 },
-    { name: 'Maty', cost: 10000, bonusClick: 50, bonusAuto: 0 },
-    { name: 'Jixeron', cost: 50000, bonusClick: 100, bonusAuto: 0 },
-    { name: 'HermiX', cost: 100000, bonusClick: 250, bonusAuto: 0 },
-    { name: 'Algame', cost: 250000, bonusClick: 500, bonusAuto: 0 },
-    { name: 'Smoliq', cost: 500000, bonusClick: 1000, bonusAuto: 0 }
+    { name: 'Skelen', cost: 2500, bonusClick: 10, bonusAuto: 0 },
+    { name: 'Mavi', cost: 10000, bonusClick: 25, bonusAuto: 0 },
+    { name: 'Maty', cost: 25000, bonusClick: 50, bonusAuto: 0 },
+    { name: 'Jixeron', cost: 100000, bonusClick: 150, bonusAuto: 0 },
+    { name: 'HermiX', cost: 300000, bonusClick: 400, bonusAuto: 0 },
+    { name: 'Algame', cost: 1000000, bonusClick: 1000, bonusAuto: 0 },
+    { name: 'Smoliq', cost: 5000000, bonusClick: 2500, bonusAuto: 0 }
   ];
 
-  // Jména - vpravo (automatické body)
   const autoUpgrades = [
     { name: 'MatPizza', cost: 200, bonusClick: 0, bonusAuto: 1 },
     { name: 'Tendys', cost: 800, bonusClick: 0, bonusAuto: 5 },
-    { name: 'Mop', cost: 1500, bonusClick: 0, bonusAuto: 10 },
-    { name: 'Letadlo52', cost: 3000, bonusClick: 0, bonusAuto: 15 },
-    { name: 'paldes12', cost: 7000, bonusClick: 0, bonusAuto: 25 },
-    { name: 'RizzRikCz', cost: 15000, bonusClick: 0, bonusAuto: 40 },
-    { name: 'SirYakari', cost: 35000, bonusClick: 0, bonusAuto: 60 },
-    { name: 'Strejda Citron', cost: 75000, bonusClick: 0, bonusAuto: 100 },
-    { name: 'Mýval', cost: 150000, bonusClick: 0, bonusAuto: 150 }
+    { name: 'Mop', cost: 2000, bonusClick: 0, bonusAuto: 10 },
+    { name: 'Letadlo52', cost: 7000, bonusClick: 0, bonusAuto: 25 },
+    { name: 'paldes12', cost: 15000, bonusClick: 0, bonusAuto: 40 },
+    { name: 'RizzRikCz', cost: 35000, bonusClick: 0, bonusAuto: 60 },
+    { name: 'SirYakari', cost: 100000, bonusClick: 0, bonusAuto: 100 },
+    { name: 'Strejda Citron', cost: 300000, bonusClick: 0, bonusAuto: 200 },
+    { name: 'Mýval', cost: 1000000, bonusClick: 0, bonusAuto: 500 }
   ];
 
-  // Vynech Plej ze seznamu vlevo (aby byl dole zvlášť)
   const clickUpgradesWithoutPlej = clickUpgrades.filter(u => u.name !== 'Plej');
-
   let upgradesBought = JSON.parse(localStorage.getItem('upgradesBought')) || {};
 
   function saveState() {
@@ -287,11 +315,10 @@
       } else if (side === 'plej') {
         clickPower += upgrade.bonusClick;
         passiveIncome += upgrade.bonusAuto;
-        alert('Gratulace! Zakoupil jsi Plej, gratuluji k výhře!');
+        // alert removed here, no congratulations
       }
 
       upgradesBought[upgrade.name] = (upgradesBought[upgrade.name] || 0) + 1;
-
       updateDisplay();
       saveState();
     } else {
@@ -348,7 +375,6 @@
       upgradesBought = {};
       saveState();
       updateDisplay();
-      // Vyčistit shop, znovu vykreslit
       clickUpgradesDiv.innerHTML = '';
       autoUpgradesDiv.innerHTML = '';
       plejContainer.innerHTML = '';
@@ -360,6 +386,10 @@
     soundEnabled = !soundEnabled;
     updateDisplay();
     saveState();
+  });
+
+  xmpLolBtn.addEventListener('click', () => {
+    window.open('https://xmp.lol', '_blank');
   });
 
   setInterval(() => {
