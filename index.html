@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XMP KLICKER</title>
+<style>
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    background-color: #111;
+    color: #ffeb3b;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    margin: 0;
+    font-weight: 900;
+    font-size: 2.8rem;
+    text-shadow: 1px 1px 8px #000;
+  }
+
+  button.control-btn {
+    background: #333;
+    border: 2px solid #ffeb3b;
+    color: #ffeb3b;
+    font-weight: 700;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 0 8px #ffeb3b;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  button.control-btn:hover {
+    background: #ffeb3b;
+    color: #111;
+  }
+
+  #xmp {
+    font-size: 40px;
+    background: #ffeb3b;
+    color: black;
+    padding: 20px 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 40px;
+    box-shadow: 0 0 25px rgba(255, 235, 59, 0.8);
+    user-select: none;
+  }
+  #score {
+    font-size: 32px;
+    margin-top: 20px;
+    color: #ffeb3b;
+    text-shadow: 1px 1px 6px #000;
+  }
+  #progress-container {
+    width: 80%;
+    height: 25px;
+    background: #222;
+    border-radius: 15px;
+    margin: 20px auto;
+    overflow: hidden;
+    box-shadow: 0 0 12px #555;
+  }
+  #progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #ffc107, #ffeb3b);
+    transition: width 0.3s;
+  }
+  #open-shop {
+    margin-top: 20px;
+    background: #fdd835;
+    color: #000;
+    padding: 10px 20px;
+    font-size: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 15px #fdd835;
+    transition: 0.3s;
+  }
+  #open-shop:hover {
+    background: #fbc02d;
+    box-shadow: 0 0 20px #fbc02d;
+  }
+  .shop {
+    display: none;
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(255, 235, 59, 0.4);
+    color: #ffeb3b;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #bps-display {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 6px #000;
+  }
+  .shop-grid-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  .shop-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 45%;
+  }
+  .separator {
+    width: 2px;
+    background: #ffeb3b;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #ffeb3b;
+  }
+  .upgrade {
+    background: #222;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.3);
+    transition: transform 0.2s, background 0.3s;
+    user-select: none;
+  }
+  .upgrade:hover {
+    transform: scale(1.05);
+    background: #333;
+  }
+  #plej-upgrade-container {
+    margin-top: 30px;
+  }
+  #plej-upgrade {
+    background: #222;
+    padding: 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 24px;
+    box-shadow: 0 0 25px rgba(255, 235, 59, 0.6);
+    user-select: none;
+    transition: transform 0.2s, background 0.3s;
+  }
+  #plej-upgrade:hover {
+    transform: scale(1.07);
+    background: #333;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Klikačka</h1>
+  <button class="control-btn" id="reset-btn" title="Reset všech bodů a upgradů">Reset</button>
+  <button class="control-btn" id="sound-toggle-btn" title="Zapnout/vypnout zvuky">Zvuky ON</button>
+</header>
+
+<div id="xmp">XMP Coin</div>
+<div id="score">Body: 0</div>
+
+<div id="progress-container">
+  <div id="progress-bar"></div>
+</div>
+
+<button id="open-shop">Otevřít Shop</button>
+
+<div class="shop" id="shop">
+  <div id="bps-display">Body za sekundu: 0</div>
+  <div class="shop-grid-container">
+    <div class="shop-grid" id="click-upgrades">
+      <!-- Klik síla -->
+    </div>
+    <div class="separator"></div>
+    <div class="shop-grid" id="auto-upgrades">
+      <!-- Automatické body -->
+    </div>
+  </div>
+  <div id="plej-upgrade-container">
+    <!-- Plej upgrade dole -->
+  </div>
+</div>
+
+<audio id="click-sound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+
+<script>
+  let score = parseInt(localStorage.getItem('score')) || 0;
+  let clickPower = parseInt(localStorage.getItem('clickPower')) || 1;
+  let passiveIncome = parseInt(localStorage.getItem('passiveIncome')) || 0;
+  let soundEnabled = (localStorage.getItem('soundEnabled') === null) ? true : (localStorage.getItem('soundEnabled') === 'true');
+
+  const goal = 1000000000;
+
+  const scoreDisplay = document.getElementById('score');
+  const xmp = document.getElementById('xmp');
+  const shopDiv = document.getElementById('shop');
+  const openShopBtn = document.getElementById('open-shop');
+  const clickUpgradesDiv = document.getElementById('click-upgrades');
+  const autoUpgradesDiv = document.getElementById('auto-upgrades');
+  const plejContainer = document.getElementById('plej-upgrade-container');
+  const progressBar = document.getElementById('progress-bar');
+  const bpsDisplay = document.getElementById('bps-display');
+  const clickSound = document.getElementById('click-sound');
+  const resetBtn = document.getElementById('reset-btn');
+  const soundToggleBtn = document.getElementById('sound-toggle-btn');
+
+  // Jména - vlevo (klik síla)
+  const clickUpgrades = [
+    { name: 'Plej', cost: goal, bonusClick: 5000, bonusAuto: 0 },
+    { name: 'Dareos', cost: 100, bonusClick: 1, bonusAuto: 0 },
+    { name: 'Zlý Kluk', cost: 500, bonusClick: 5, bonusAuto: 0 },
+    { name: 'Skelen', cost: 1000, bonusClick: 10, bonusAuto: 0 },
+    { name: 'Mavi', cost: 5000, bonusClick: 20, bonusAuto: 0 },
+    { name: 'Maty', cost: 10000, bonusClick: 50, bonusAuto: 0 },
+    { name: 'Jixeron', cost: 50000, bonusClick: 100, bonusAuto: 0 },
+    { name: 'HermiX', cost: 100000, bonusClick: 250, bonusAuto: 0 },
+    { name: 'Algame', cost: 250000, bonusClick: 500, bonusAuto: 0 },
+    { name: 'Smoliq', cost: 500000, bonusClick: 1000, bonusAuto: 0 }
+  ];
+
+  // Jména - vpravo (automatické body)
+  const autoUpgrades = [
+    { name: 'MatPizza', cost: 200, bonusClick: 0, bonusAuto: 1 },
+    { name: 'Tendys', cost: 800, bonusClick: 0, bonusAuto: 5 },
+    { name: 'Mop', cost: 1500, bonusClick: 0, bonusAuto: 10 },
+    { name: 'Letadlo52', cost: 3000, bonusClick: 0, bonusAuto: 15 },
+    { name: 'paldes12', cost: 7000, bonusClick: 0, bonusAuto: 25 },
+    { name: 'RizzRikCz', cost: 15000, bonusClick: 0, bonusAuto: 40 },
+    { name: 'SirYakari', cost: 35000, bonusClick: 0, bonusAuto: 60 },
+    { name: 'Strejda Citron', cost: 75000, bonusClick: 0, bonusAuto: 100 },
+    { name: 'Mýval', cost: 150000, bonusClick: 0, bonusAuto: 150 }
+  ];
+
+  // Vynech Plej ze seznamu vlevo (aby byl dole zvlášť)
+  const clickUpgradesWithoutPlej = clickUpgrades.filter(u => u.name !== 'Plej');
+
+  let upgradesBought = JSON.parse(localStorage.getItem('upgradesBought')) || {};
+
+  function saveState() {
+    localStorage.setItem('score', score);
+    localStorage.setItem('clickPower', clickPower);
+    localStorage.setItem('passiveIncome', passiveIncome);
+    localStorage.setItem('upgradesBought', JSON.stringify(upgradesBought));
+    localStorage.setItem('soundEnabled', soundEnabled);
+  }
+
+  function updateDisplay() {
+    scoreDisplay.textContent = `Body: ${score.toLocaleString()}`;
+    const percent = Math.min((score / goal) * 100, 100);
+    progressBar.style.width = `${percent}%`;
+    bpsDisplay.textContent = `Body za sekundu: ${passiveIncome.toLocaleString()}`;
+    soundToggleBtn.textContent = soundEnabled ? 'Zvuky ON' : 'Zvuky OFF';
+  }
+
+  function buyUpgrade(upgrade, side) {
+    if (score >= upgrade.cost) {
+      score -= upgrade.cost;
+
+      if (side === 'click') {
+        clickPower += upgrade.bonusClick;
+      } else if (side === 'auto') {
+        passiveIncome += upgrade.bonusAuto;
+      } else if (side === 'plej') {
+        clickPower += upgrade.bonusClick;
+        passiveIncome += upgrade.bonusAuto;
+        alert('Gratulace! Zakoupil jsi Plej, gratuluji k výhře!');
+      }
+
+      upgradesBought[upgrade.name] = (upgradesBought[upgrade.name] || 0) + 1;
+
+      updateDisplay();
+      saveState();
+    } else {
+      alert(`Nedostatek bodů pro upgrade: ${upgrade.name}`);
+    }
+  }
+
+  function createShop() {
+    clickUpgradesWithoutPlej.forEach(upg => {
+      const div = document.createElement('div');
+      div.classList.add('upgrade');
+      div.innerHTML = `<strong>${upg.name}</strong><br>Cena: ${upg.cost.toLocaleString()}<br>+${upg.bonusClick} klik síly`;
+      div.onclick = () => buyUpgrade(upg, 'click');
+      clickUpgradesDiv.appendChild(div);
+    });
+
+    autoUpgrades.forEach(upg => {
+      const div = document.createElement('div');
+      div.classList.add('upgrade');
+      div.innerHTML = `<strong>${upg.name}</strong><br>Cena: ${upg.cost.toLocaleString()}<br>+${upg.bonusAuto} automaticky`;
+      div.onclick = () => buyUpgrade(upg, 'auto');
+      autoUpgradesDiv.appendChild(div);
+    });
+
+    const plejDiv = document.createElement('div');
+    plejDiv.id = 'plej-upgrade';
+    const plej = clickUpgrades.find(u => u.name === 'Plej');
+    plejDiv.innerHTML = `<strong>${plej.name}</strong><br>Cena: ${plej.cost.toLocaleString()}<br>+${plej.bonusClick} klik síly`;
+    plejDiv.onclick = () => buyUpgrade(plej, 'plej');
+    plejContainer.appendChild(plejDiv);
+  }
+
+  xmp.addEventListener('click', () => {
+    score += clickPower;
+    if (soundEnabled) {
+      clickSound.currentTime = 0;
+      clickSound.play();
+    }
+    xmp.style.animation = 'pop 0.3s';
+    setTimeout(() => (xmp.style.animation = ''), 300);
+    updateDisplay();
+    saveState();
+  });
+
+  openShopBtn.addEventListener('click', () => {
+    shopDiv.style.display = shopDiv.style.display === 'block' ? 'none' : 'block';
+  });
+
+  resetBtn.addEventListener('click', () => {
+    if (confirm('Opravdu chceš resetovat všechny body a upgrady?')) {
+      score = 0;
+      clickPower = 1;
+      passiveIncome = 0;
+      upgradesBought = {};
+      saveState();
+      updateDisplay();
+      // Vyčistit shop, znovu vykreslit
+      clickUpgradesDiv.innerHTML = '';
+      autoUpgradesDiv.innerHTML = '';
+      plejContainer.innerHTML = '';
+      createShop();
+    }
+  });
+
+  soundToggleBtn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    updateDisplay();
+    saveState();
+  });
+
+  setInterval(() => {
+    if (passiveIncome > 0) {
+      score += passiveIncome;
+      updateDisplay();
+      saveState();
+    }
+  }, 1000);
+
+  createShop();
+  updateDisplay();
+</script>
+
+</body>
+</html>
